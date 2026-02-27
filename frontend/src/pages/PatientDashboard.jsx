@@ -4,8 +4,7 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import DrAIButton from '../components/DrAIButton';
 
-const API = axios.create({ baseURL: 'http://localhost:8000' });
-
+import api from '../api/axios';
 const TIPS = [
     'Drink at least 8 glasses of water daily.',
     'Walk 30 minutes every day to keep your heart healthy.',
@@ -201,7 +200,7 @@ function MedsSection({ patientId, token }) {
     const [alerted, setAlerted] = useState({});
 
     const load = useCallback(() => {
-        API.get(`/meds/reminders/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get(`/meds/reminders/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setReminders(res.data); setLoading(false); })
             .catch(() => setLoading(false));
     }, [patientId, token]);
@@ -235,7 +234,7 @@ function MedsSection({ patientId, token }) {
         const t = editTime[id];
         if (!t) return;
         try {
-            await API.put(`/meds/reminder/${id}/time`, { reminder_time: t }, { headers: { Authorization: `Bearer ${token}` } });
+            await api.put(`/meds/reminder/${id}/time`, { reminder_time: t }, { headers: { Authorization: `Bearer ${token}` } });
             toast.success('Alarm time updated 🔔');
             load();
         } catch { toast.error('Could not update time'); }
@@ -243,7 +242,7 @@ function MedsSection({ patientId, token }) {
 
     const markTaken = async (r) => {
         try {
-            const res = await API.post(`/meds/taken/${r.id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            const res = await api.post(`/meds/taken/${r.id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
             toast.success(res.data.message, { icon: '✅', duration: 5000 });
             if (res.data.remaining_stock === 0) {
                 toast.error('🚨 Out of Stock! Consult your doctor or pharmacy.', { duration: 8000 });
@@ -354,15 +353,14 @@ function RecordsSection({ patientId, token }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        API.get(`/medical-records/patient-records/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get(`/medical-records/patient-records/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setRecords(res.data); setLoading(false); })
             .catch(() => setLoading(false));
     }, [patientId, token]);
 
     const downloadFile = (id, fname) => {
-        const a = document.createElement('a');
-        a.href = `http://localhost:8000/medical-records/download/${id}`;
-        a.download = fname; a.click();
+        const url = `https://ai-healthcare-cahz.onrender.com/medical-records/download/${id}`;
+        window.open(url, '_blank');
         toast.success(`Downloading ${fname}`);
     };
 
@@ -423,7 +421,7 @@ function LabSection({ patientId, token }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        API.get(`/lab/patient/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get(`/lab/patient/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setReports(Array.isArray(res.data) ? res.data : []); setLoading(false); })
             .catch(() => setLoading(false));
     }, [patientId, token]);
@@ -443,7 +441,7 @@ function LabSection({ patientId, token }) {
                             </p>
                         </div>
                         {r.file_name && (
-                            <a href={`http://localhost:8000/lab/download/${r.id}`}
+                            <a href={`https://ai-healthcare-cahz.onrender.com/lab/download/${r.id}`} target="_blank" rel="noreferrer"
                                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 hover:bg-sky-100 text-xs font-medium border border-sky-200 dark:border-sky-700 transition-colors">
                                 ⬇ {r.file_name.length > 20 ? r.file_name.slice(0, 20) + '...' : r.file_name}
                             </a>
@@ -471,7 +469,7 @@ function RxSection({ patientId, token }) {
     const [expanded, setExpanded] = useState(null);
 
     useEffect(() => {
-        API.get(`/rx/patient/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get(`/rx/patient/registered/${patientId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setPrescriptions(res.data); setLoading(false); })
             .catch(() => setLoading(false));
     }, [patientId, token]);
@@ -597,7 +595,7 @@ export default function PatientDashboard() {
 
     useEffect(() => {
         if (!token || !patient) return;
-        API.get(`/patient/profile/${patient.id}`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get(`/patient/profile/${patient.id}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => setFullProfile(res.data)).catch(() => { });
     }, [token, patient?.id]);
 

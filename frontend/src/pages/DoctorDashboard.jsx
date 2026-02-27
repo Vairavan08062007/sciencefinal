@@ -376,7 +376,7 @@ function ReportSection({ patientId }) {
                     <p className="text-white/30 text-sm text-center py-2">No files in {activeFolder}</p>
                 )}
                 {activeFolder && grouped[activeFolder].map(r => (
-                    <a key={r.id} href={`http://localhost:8000/uploads/${r.file_path}`} target="_blank" rel="noreferrer"
+                    <a key={r.id} href={`https://ai-healthcare-cahz.onrender.com/uploads/${r.file_path}`} target="_blank" rel="noreferrer"
                         className="flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-xl px-4 py-2.5 transition-all">
                         <span>{r.file_name.endsWith('.pdf') ? '📄' : '🖼️'}</span>
                         <span className="text-white text-sm flex-1 truncate">{r.file_name}</span>

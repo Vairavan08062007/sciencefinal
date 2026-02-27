@@ -197,7 +197,7 @@ export default function Labs() {
                                                     <p className="text-xs text-slate-400 mt-0.5">By {r.staff_name || 'Unknown'} · {r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</p>
                                                 </div>
                                                 {r.file_name && (
-                                                    <a href={`http://localhost:8000/lab/download/${r.id}`}
+                                                    <a href={`https://ai-healthcare-cahz.onrender.com/lab/download/${r.id}`} target="_blank" rel="noreferrer"
                                                         className="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 hover:bg-sky-100 border border-sky-200 dark:border-sky-700 transition-colors">
                                                         ⬇ {r.file_name}
                                                     </a>

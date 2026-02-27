@@ -129,3 +129,63 @@ class RegisteredPatient(Base):
     password_hash     = Column(Text, nullable=False)
     created_at        = Column(DateTime, server_default=func.now())
 
+
+class AdvancedPrescription(Base):
+    __tablename__ = "advanced_prescriptions"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, nullable=False, index=True)
+    patient_source = Column(String(50), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    doctor_name = Column(String(255))
+    diagnosis = Column(Text, nullable=False)
+    medicines = Column(JSONB, nullable=False)
+    advice = Column(Text)
+    follow_up_date = Column(Date)
+    digital_signature = Column(String(255))
+    rx_number = Column(String(100), unique=True, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class PatientDiagnosisReport(Base):
+    __tablename__ = "patient_diagnosis_reports"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, nullable=False, index=True)
+    patient_source = Column(String(50), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    sugar_level = Column(String(100))
+    blood_pressure = Column(String(100))
+    diagnosis = Column(Text, nullable=False)
+    notes = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class LabReport(Base):
+    __tablename__ = "lab_reports"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, nullable=False, index=True)
+    patient_source = Column(String(50), nullable=False)
+    staff_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    staff_name = Column(String(255))
+    test_name = Column(String(255), nullable=False)
+    test_results = Column(JSONB, nullable=False)
+    remarks = Column(Text)
+    file_name = Column(String(255))
+    file_path = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class MedicalRecord(Base):
+    __tablename__ = "medical_records"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, nullable=False, index=True)
+    patient_source = Column(String(50), nullable=False)
+    uploaded_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    uploaded_by_role = Column(String(50))
+    sugar_level = Column(String(100))
+    blood_pressure = Column(String(100))
+    diagnosis = Column(Text)
+    suggestion = Column(Text)
+    file_name = Column(String(255))
+    file_path = Column(Text)
+    file_category = Column(String(100))
+    created_at = Column(DateTime, server_default=func.now())
