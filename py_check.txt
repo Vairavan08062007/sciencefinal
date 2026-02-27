@@ -1,0 +1,4 @@
+Python 3.14.3
+C:\Program Files\Python314\python.exe
+C:\Program Files\Python311\python.exe
+C:\Users\vaira\AppData\Local\Microsoft\WindowsApps\python.exe
