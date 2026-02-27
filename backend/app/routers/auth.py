@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
 from app.models import Hospital, User, AuditLog
@@ -17,6 +18,9 @@ pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    if len(payload.password) > 72:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is too long (max 72 characters)")
+
     # 1. Verify hospital exists
     hosp_result = await db.execute(
         select(Hospital).where(Hospital.hospital_id == payload.hospital_id, Hospital.is_active == True)
@@ -64,6 +68,9 @@ async def register_hospital(payload: HospitalCreate, db: AsyncSession = Depends(
     if payload.register_secret != settings.register_secret:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid register secret")
 
+    if len(payload.admin_password) > 72:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is too long (max 72 characters)")
+
     # Check duplicate hospital_id
     existing = await db.execute(select(Hospital).where(Hospital.hospital_id == payload.hospital_id))
     if existing.scalar_one_or_none():
@@ -89,6 +96,10 @@ async def register_hospital(payload: HospitalCreate, db: AsyncSession = Depends(
         full_name=payload.admin_full_name or "Administrator",
     )
     db.add(admin)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username or email already exists")
 
     return {"message": f"Hospital {payload.hospital_id} registered successfully", "hospital_id": payload.hospital_id}
