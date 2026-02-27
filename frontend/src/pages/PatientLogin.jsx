@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api/axios';
 import toast, { Toaster } from 'react-hot-toast';
-
-const API = axios.create({ baseURL: 'http://localhost:8000' });
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
@@ -179,8 +177,8 @@ export default function PatientLogin() {
                         {[['login', '🔐 Sign In'], ['register', '📝 Register']].map(([key, label]) => (
                             <button key={key} onClick={() => setTab(key)}
                                 className={`flex-1 py-3 text-sm font-semibold transition-all border-b-2 ${tab === key
-                                        ? 'border-sky-600 text-sky-700 dark:text-sky-400'
-                                        : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                                    ? 'border-sky-600 text-sky-700 dark:text-sky-400'
+                                    : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                                     }`}>
                                 {label}
                             </button>
