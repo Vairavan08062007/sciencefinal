@@ -44,12 +44,24 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-origins = [o.strip() for o in settings.allowed_origins.split(",")]
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "https://health-nine-cyan.vercel.app",
+    "https://ai-healthcare-cahz.onrender.com"
+]
+if hasattr(settings, "allowed_origins") and settings.allowed_origins:
+    origins.extend([o.strip() for o in settings.allowed_origins.split(",") if o.strip()])
+
+# Deduplicate origins
+origins = list(set(origins))
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*", "OPTIONS", "POST", "GET", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
 

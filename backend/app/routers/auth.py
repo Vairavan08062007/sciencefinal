@@ -18,6 +18,8 @@ pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    if not payload.password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is required")
     if len(payload.password) > 72:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is too long (max 72 characters)")
 
@@ -38,7 +40,14 @@ async def login(payload: LoginRequest, request: Request, db: AsyncSession = Depe
         )
     )
     user = user_result.scalar_one_or_none()
-    if not user or not pwd_ctx.verify(payload.password, user.password_hash):
+    
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        
+    if not user.password_hash:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Server config error: password hash missing")
+
+    if not pwd_ctx.verify(payload.password, user.password_hash):
         # Audit failed attempt
         db.add(AuditLog(action="LOGIN_FAILED", details={"username": payload.username, "hospital_id": payload.hospital_id}, ip_address=request.client.host))
         await db.commit()
