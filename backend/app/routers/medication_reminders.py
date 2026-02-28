@@ -124,11 +124,16 @@ async def update_reminder_time(
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        rtime = None
+        if payload.reminder_time:
+            parts = payload.reminder_time.split(':')
+            rtime = dt_time(int(parts[0]), int(parts[1]))
+
         await db.execute(text("""
             UPDATE medication_reminders
-            SET reminder_time = :rtime::time
+            SET reminder_time = :rtime
             WHERE id = :rid
-        """), {"rtime": payload.reminder_time, "rid": reminder_id})
+        """), {"rtime": rtime, "rid": reminder_id})
         await db.commit()
         return {"message": "Reminder time updated"}
     except Exception as e:

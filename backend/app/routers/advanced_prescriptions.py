@@ -78,7 +78,7 @@ async def create_prescription(
             "diag":    payload.diagnosis,
             "meds":    medicines_json,
             "advice":  payload.advice,
-            "followup": str(payload.follow_up_date) if payload.follow_up_date else None,
+            "followup": payload.follow_up_date if payload.follow_up_date else None,
             "sig":     digital_sig,
             "rxn":     rx_number,
         })
